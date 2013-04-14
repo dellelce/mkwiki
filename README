@@ -3,4 +3,19 @@ mkwiki.py
 =========
 
 
-Initial commit - automate mediawiki install
+Purpose:
+Automate mediawiki install and customization
+
+Initial:
+
+Installs mediawiki (files must be in place) with SQLite database
+
+TODO:
+
+* Platform configuration will be stored externally
+* all Custom Settings will be moved out to a file called CustomSettings.php
+* Install basic extensions
+* Install SMW (and related extensions=
+* Install custom skin
+
+=== EOF ===
