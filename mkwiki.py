@@ -48,7 +48,7 @@ class mkwiki:
        # wikiUrl - this
        if full_url is None:
           self.wikiUrl = "http://" + self.id + ".net"
-       else
+       else:
           self.wikiUrl = full_url
 
        # dbname (will be filename for sqlite?)
@@ -65,9 +65,9 @@ class mkwiki:
        # these must be changed to a windows format if using cygwin BUT Apache is Windows Native
        if self.is_cygwin:
 	 self.dataDir = subprocess.check_output(["cygpath", "-w", self.dataDir]);
-	 self.dataDir = re.sub(r'\', '', self.dataDir);
+	 self.dataDir = self.dataDir.replace('\n','');
 	 self.phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
-	 self.phpFile = re.sub(r'\', '', self.phpFile);
+	 self.phpFile = self.phpFile.replace('\n','');
 
 # internal configs - will be stored in a config file - sqlite or xml
 
