@@ -22,7 +22,7 @@ import sqlite3
 class mkwiki:
    'wiki creation class'
 
-   def __init__(self, site_domain, site_id):
+   def __init__(self, site_domain, site_id, full_url = None):
 
        self.version = "0.0.1"
 
@@ -45,8 +45,12 @@ class mkwiki:
        self.installCmd=""
        # password
        self.adminpass = self.id + "0x"
-       # wikiUrl
-       self.wikiUrl = "http://" + self.id + ".net"
+       # wikiUrl - this
+       if full_url is None:
+          self.wikiUrl = "http://" + self.id + ".net"
+       else
+          self.wikiUrl = full_url
+
        # dbname (will be filename for sqlite?)
        self.dbname = self.id + "_db"
        # full db pat - this is used internally, so no need to use cygpath if under cygwin
@@ -65,10 +69,10 @@ class mkwiki:
 	 self.phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
 	 self.phpFile = re.sub(r'\', '', self.phpFile);
 
-# internal configs
+# internal configs - will be stored in a config file - sqlite or xml
 
    def setupInternals(self):
-       #directory where phop is installed: a way to dynamically configure this is needed
+       #directory where php is installed: a way to dynamically configure this is needed
        self.phpDir = "/c/apache/php5"
        # directory where all websites are
        self.rootDir = "/c/apache/sites"
