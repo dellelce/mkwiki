@@ -12,7 +12,7 @@ class commitTest:
 	pass
 
 
-print 'commit test'
+print 'commit test'
 
 
 ## EOF ##
