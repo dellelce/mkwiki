@@ -15,7 +15,8 @@ TODO:
 * Platform configuration will be stored externally
 * all Custom Settings will be moved out to a file called CustomSettings.php
 * Install basic extensions
-* Install SMW (and related extensions=
+* Install SMW (and related extensions)
 * Install custom skin
+* Load XML dumps
 
 === EOF ===
