@@ -47,17 +47,23 @@ class mkwiki:
        self.adminpass = self.id + "0x"
        # wikiUrl - this
        if full_url is None:
-          self.wikiUrl = "http://" + self.id + ".net"
+          self.wikiUrl = "http://" + self.domain 
        else:
           self.wikiUrl = full_url
+       #
+       # scriptpath .. currently empty
+       self.scriptpath = ""
+       #
+       # API url
+       if self.scriptpath is None or self.scriptpath == "":
+          self.apiUrl = self.wikiUrl + '/api.php'
+       else:
+          self.apiUrl = self.wikiUrl + '/' + self.scriptpath + '/api.php'
 
        # dbname (will be filename for sqlite?)
        self.dbname = self.id + "_db"
        # full db pat - this is used internally, so no need to use cygpath if under cygwin
        self.fulldbpath = self.dataDir + "/" + self.dbname + ".sqlite"
-       #
-       # scriptpath .. currently empty
-       self.scriptpath = ""
        # configuration files
        self.LocalSettings = self.destDir + "/" + "LocalSettings.php"
        ####
@@ -84,6 +90,7 @@ class mkwiki:
        #php executable
        self.phpCmd = self.phpDir + "/" + "php"
        # dbserver.. not really needed for sqlite
+       #this should be moved to a platform configuration
        self.dbserver = "localhost"
 
 # slightly different behaviour if we are using cygwin
@@ -168,14 +175,17 @@ class mkwiki:
        print "this is htaccessRaw"
        return
 
+# this is the function that will
    def readConfig(self, config="mkwiki.config"):
-       dbConn = sqlite3.connect(self.fulldbpath) #warning should perform some tests..
+       dbConn = sqlite3.connect(config) #warning should perform some tests..
        cur = dbConn.cursor()
        #cur.execute ("select page_id,page_namespace,page_is_new, page_title from page");
+       cur.execute ("select site_id from sites");
        return
 
 
-wi = mkwiki('20wiki.net', '20wiki') # domain, id
+#wi = mkwiki('20wiki.net', '20wiki') # domain, id
+wi = mkwiki('a.20wiki.net', 'a_20wiki_net') # domain, id
    
 wi.prepareInstallCmd()
 wi.printEnv()
