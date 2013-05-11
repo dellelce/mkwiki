@@ -44,7 +44,8 @@ class mkwiki:
        #used only internally - full command with arguments
        self.installCmd=""
        # password
-       self.adminpass = self.id + "0x"
+       self.adminPass = self.id + "0x"
+       self.adminUser = 'admin'
        # wikiUrl - this
        if full_url is None:
           self.wikiUrl = "http://" + self.domain 
@@ -120,12 +121,12 @@ class mkwiki:
 			  ' --dbpath="'        + self.dataDir + '" ' +
 			  ' --dbtype="sqlite"' +
 			  ' --wiki="'          + self.id + '" ' +
-			  ' --pass="'          + self.adminpass + '" ' +
+			  ' --pass="'          + self.adminPass + '" ' +
 			  ' --server="'        + self.wikiUrl + '" ' +
 			  ' --dbname="'        + self.dbname + '" ' +
 			  ' --scriptpath="'    + self.scriptpath + '" ' +
 			  ' --dbserver="'      + self.dbserver + '" ' +
-			   self.id + ' ' + self.id
+			   self.id + ' ' + self.adminUser
 			)
        return
        
@@ -166,7 +167,8 @@ class mkwiki:
        print "destDir        = " + str(self.destDir)
        print "phpFile        = " + str(self.phpFile)
        print "installCmd     = " + str(self.installCmd)
-       print "adminpass      = " + str(self.adminpass)
+       print "admin          = " + str(self.adminUser)
+       print "adminpass      = " + str(self.adminPass)
        print "dbserver       = " + str(self.dbserver)
        print "is_cygwin      = " + str(self.is_cygwin)
        return
