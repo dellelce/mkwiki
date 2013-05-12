@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# mediawiki installation tool
+# mediawiki installation & customization tool
 #
 # reference docs:
 #
@@ -12,6 +12,9 @@
 # 0.0.1
 #       05:52 ??0313 first real working version!!!!
 #
+# 0.0.2
+#       adding support for creation of CustomSettings.php file
+#
 
 import os
 import re
@@ -19,34 +22,102 @@ import subprocess
 import array
 import sqlite3
 
+# will handle platform related configuration
+# php, apache and sites home
+
+class wikiPlatform:
+    pass
+
+# will handle extensions and their configuration
+#
+
+class wikiExtension:
+    'extension management class'
+
+    def __init__(self, name, init_file = None):
+
+      if init_file is None:
+         init_fullpath = 'extensions/' + name + '/' + name + '.php' 
+
+#
+# handles custom configuratios
+# LocalSettings.php will be left almost untouched apart from parameters we allow changing
+# customsettings should be saved also in a binary file or in a database so to better
+# handle automatic rebuild.. more details TBD
+#
+
+class customSettings:
+     'manage custom settings'
+
+     _customArray = []
+     _arrayLength = 0
+
+     localsettings = None
+     id = None
+
+
+     def __init__(self, wiki = None):
+        if wiki is not None and isinstance(wiki, mkwiki):
+           self.localsettings = wiki.LocalSettings
+           self.id = wiki.id
+
+     def add(self, line):
+       'add a line to custom settings file'
+       pass
+
+# load settings
+     def load(self):
+       fh = open (self.localsettings)
+
+       _confArray = []
+
+       for line in fh:
+           line = line.strip()
+	   _confArray.append(line)
+
+       confLen = len(_confArray)
+
+       print self.localsettings + ' size is of ' + str(confLen) + ' lines.'
+
+
+# "master" wiki generation class
+
 class mkwiki:
    'wiki creation class'
 
-   def __init__(self, site_domain, site_id, full_url = None):
+   version = '0.0.2'
 
-       self.version = "0.0.1"
+   adminUser = 'admin'
+
+   LocalSettings = None
+
+   def __init__(self, site_domain, site_id, full_url = None):
 
        if self.test_cygwin:
          self.is_cygwin = True
        else:
 	 self.is_cygwin = False
 
-       print "welcome to mkwiki " + self.version
-
        self.id = site_id
        self.domain = site_domain
+
+       #used only internally - full command with arguments
+       self.installCmd=""
+       # admin user
+       if self.adminUser is None:
+         self.adminUser = 'admin'
+
+       self.adminPass = self.id + "0x"
 
        #internal objects - dependant on system configuration/apache install/etc
        self.setupInternals()
 
+       #database initializaton function
+       self.setupDB()
+
        #install.php
        self.phpFile= self.destDir + "/maintenance/install.php"
-       #used only internally - full command with arguments
-       self.installCmd=""
-       # password
-       self.adminPass = self.id + "0x"
-       self.adminUser = 'admin'
-       # wikiUrl - this
+       # wikiUrl 
        if full_url is None:
           self.wikiUrl = "http://" + self.domain 
        else:
@@ -54,17 +125,10 @@ class mkwiki:
        #
        # scriptpath .. currently empty
        self.scriptpath = ""
-       #
-       # API url
-       if self.scriptpath is None or self.scriptpath == "":
-          self.apiUrl = self.wikiUrl + '/api.php'
-       else:
-          self.apiUrl = self.wikiUrl + '/' + self.scriptpath + '/api.php'
 
-       # dbname (will be filename for sqlite?)
-       self.dbname = self.id + "_db"
-       # full db pat - this is used internally, so no need to use cygpath if under cygwin
-       self.fulldbpath = self.dataDir + "/" + self.dbname + ".sqlite"
+       # API init
+       self.setupAPI()
+
        # configuration files
        self.LocalSettings = self.destDir + "/" + "LocalSettings.php"
        ####
@@ -78,11 +142,19 @@ class mkwiki:
 
 # internal configs - will be stored in a config file - sqlite or xml
 
-   def setupInternals(self):
+   def setupInternals(self, _phpDir = None, _rootDir = None):
        #directory where php is installed: a way to dynamically configure this is needed
-       self.phpDir = "/c/apache/php5"
+       if _phpDir is None:
+          self.phpDir = "/c/apache/php5"
+       else:
+          self.phpDir = _phpDir
+
        # directory where all websites are
-       self.rootDir = "/c/apache/sites"
+
+       if _rootDir is None:
+          self.rootDir = "/c/apache/sites"
+       else:
+          self.rootDir = _phpDir
        # where all html will be located
        self.destDir = self.rootDir + "/" + self.id + "/" + "html"
        # rootDir/id/db/
@@ -94,7 +166,26 @@ class mkwiki:
        #this should be moved to a platform configuration
        self.dbserver = "localhost"
 
+# "temporary" function which handles all database init
+
+   def setupDB(self):
+       """
+       setup DB variables
+       """
+       # dbname (will be filename for sqlite?)
+       self.dbname = self.id + "_db"
+       # full db pat - this is used internally, so no need to use cygpath if under cygwin
+       self.fulldbpath = self.dataDir + "/" + self.dbname + ".sqlite"
+
+   def setupAPI(self):
+       # API url
+       if self.scriptpath is None or self.scriptpath == "":
+          self.apiUrl = self.wikiUrl + '/api.php'
+       else:
+          self.apiUrl = self.wikiUrl + '/' + self.scriptpath + '/api.php'
+
 # slightly different behaviour if we are using cygwin
+# should be replace by using platform class
 
    def test_cygwin():
        uname = os.uname()[0];
@@ -132,10 +223,17 @@ class mkwiki:
        
 # load mkwiki configuration
    def run(self):
-       if self.installCmd != "":
-	print "executing: " + self.installCmd
-	subprocess.call(self.installCmd,shell=True);
-	subprocess.call(["chmod", "777", self.fulldbpath]);
+       #TBD: if installCmd is empty or not set should we return, try to "prepare" it or... ??
+       if self.installCmd == "" or self.installCmd is None:
+         return
+
+       if os.path.exists(self.LocalSettings):
+         print 'already installed: ' + self.domain
+         return
+
+       print "executing: " + self.installCmd
+       subprocess.call(self.installCmd,shell=True);
+       subprocess.call(["chmod", "777", self.fulldbpath]);
        return
 
 # print LocalSettings
@@ -150,7 +248,26 @@ class mkwiki:
 	     continue
 	   print line
            confArray.append(line)
+
+       print ''
+       print 'Length: ' + str(len(confArray))
        fh.close
+
+# load settings
+   def loadSettings(self):
+       fh = open (self.LocalSettings)
+
+       _confArray = []
+
+       for line in fh:
+           line = line.strip()
+	   _confArray.append(line)
+
+       confLen = len(_confArray)
+
+       print _confArray[confLen-10:confLen]
+
+       print 'number of lines in conf is: ' + str(len(_confArray))
   
 # debug/info use only
  
@@ -174,6 +291,9 @@ class mkwiki:
        return
    
    def htaccessRaw(self):
+       """
+       create basic htaccess - TBC
+       """
        print "this is htaccessRaw"
        return
 
@@ -185,15 +305,20 @@ class mkwiki:
        cur.execute ("select site_id from sites");
        return
 
+## Test code for above classes ##
 
-#wi = mkwiki('20wiki.net', '20wiki') # domain, id
+
 wi = mkwiki('a.20wiki.net', 'a_20wiki_net') # domain, id
    
 wi.prepareInstallCmd()
 wi.printEnv()
 wi.run()
-wi.printSettings()
+wi.loadSettings()
 #wi.testDB()
 
+# customSettings code
+
+cs = customSettings(wi)
+cs.load()
 
 ## EOF ##
