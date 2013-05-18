@@ -17,6 +17,7 @@
 #
 
 import os
+import stat as stat
 import re
 import subprocess
 import array
@@ -52,32 +53,38 @@ class customSettings:
      _customArray = []
      _arrayLength = 0
 
+     customsettings = None
+
      localsettings = None
      id = None
-
 
      def __init__(self, wiki = None):
         if wiki is not None and isinstance(wiki, mkwiki):
            self.localsettings = wiki.LocalSettings
+           self.customsettings = wiki.destDir + "/" + "CustomSettings.php"
            self.id = wiki.id
 
      def add(self, line):
        'add a line to custom settings file'
-       pass
+
+       if line is not None:
+	  self._customArray.append(line)
 
 # load settings
      def load(self):
        fh = open (self.localsettings)
 
-       _confArray = []
-
        for line in fh:
            line = line.strip()
-	   _confArray.append(line)
+	   self._customArray.append(line)
 
-       confLen = len(_confArray)
+       _arrayLength = len(self._customArray)
 
-       print self.localsettings + ' size is of ' + str(confLen) + ' lines.'
+
+     def show(self):
+         for line in self._customArray:
+            print line
+       
 
 
 # "master" wiki generation class
@@ -86,10 +93,10 @@ class mkwiki:
    'wiki creation class'
 
    version = '0.0.2'
-
    adminUser = 'admin'
-
    LocalSettings = None
+   _htaccessArray = []
+   dbType = 'sqlite'
 
    def __init__(self, site_domain, site_id, full_url = None):
 
@@ -170,7 +177,7 @@ class mkwiki:
 
    def setupDB(self):
        """
-       setup DB variables
+       setup DB variables & connection
        """
        # dbname (will be filename for sqlite?)
        self.dbname = self.id + "_db"
@@ -233,7 +240,12 @@ class mkwiki:
 
        print "executing: " + self.installCmd
        subprocess.call(self.installCmd,shell=True);
-       subprocess.call(["chmod", "777", self.fulldbpath]);
+
+       #subprocess.call(["chmod", "777", self.fulldbpath]);
+       # sqlite "database" must be writeable by webserver
+       if self.dbType == 'sqlite':
+          os.chmod(self.fulldbpath, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IWOTH | stat.S_IROTH)
+
        return
 
 # print LocalSettings
@@ -307,7 +319,6 @@ class mkwiki:
 
 ## Test code for above classes ##
 
-
 wi = mkwiki('a.20wiki.net', 'a_20wiki_net') # domain, id
    
 wi.prepareInstallCmd()
@@ -320,5 +331,6 @@ wi.loadSettings()
 
 cs = customSettings(wi)
 cs.load()
+
 
 ## EOF ##
