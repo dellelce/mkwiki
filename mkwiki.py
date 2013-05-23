@@ -14,6 +14,10 @@
 #
 # 0.0.2
 #       adding support for creation of CustomSettings.php file
+#       three files will be supported initially:
+#       * LocalSettings.php (add reference to CustomSettings.php)
+#       * CustomSettings.php: actual configuration
+#       * basic (working) .htaccess
 #
 
 import os
@@ -41,10 +45,25 @@ class wikiExtension:
          init_fullpath = 'extensions/' + name + '/' + name + '.php' 
 
 #
+#
+class htaccess:
+
+   destDir = None
+   htaccessFile = None
+
+   def __init__(self, wiki):
+     if isinstance(wiki, mkwiki):
+        destDir = wiki.destDir
+        htaccessFile = destDir + '/.htaccess'
+
+#
 # handles custom configuratios
 # LocalSettings.php will be left almost untouched apart from parameters we allow changing
 # customsettings should be saved also in a binary file or in a database so to better
 # handle automatic rebuild.. more details TBD
+#
+# This class might be removed as its features should be integrated with
+# the mkwiki class
 #
 
 class customSettings:
@@ -59,10 +78,14 @@ class customSettings:
      id = None
 
      def __init__(self, wiki = None):
-        if wiki is not None and isinstance(wiki, mkwiki):
+        if isinstance(wiki, mkwiki):
            self.localsettings = wiki.LocalSettings
            self.customsettings = wiki.destDir + "/" + "CustomSettings.php"
            self.id = wiki.id
+
+        if isinstance(wiki, str) and os.path.exists(wiki):
+           #workinprogress
+           pass
 
      def add(self, line):
        'add a line to custom settings file'
@@ -72,7 +95,12 @@ class customSettings:
 
 # load settings
      def load(self):
-       fh = open (self.localsettings)
+       try:
+         fh = open (self.customsettings)
+       except Exception as e:
+	 # might be empty or does not exist, directory should exist, this will be tested
+         _arrayLength = 0
+         return
 
        for line in fh:
            line = line.strip()
@@ -82,9 +110,26 @@ class customSettings:
 
 
      def show(self):
-         for line in self._customArray:
-            print line
+        '''show contents of customarray'''
+
+        for line in self._customArray:
+           print line
        
+
+     def write(self):
+        try:
+          fh = open(self.customsettings, 'w');
+        except Exception as e:
+          print 'write: error for file: ' + self.customsettings
+          print type(e)
+          print e.args
+	
+          return
+
+        for item in self._customArray:
+          fh.write(item+'\n')
+
+        fh.close()
 
 
 # "master" wiki generation class
@@ -95,7 +140,9 @@ class mkwiki:
    version = '0.0.2'
    adminUser = 'admin'
    LocalSettings = None
+   htaccessFile = None
    _htaccessArray = []
+   destDir = None
    dbType = 'sqlite'
 
    def __init__(self, site_domain, site_id, full_url = None):
@@ -302,11 +349,11 @@ class mkwiki:
        print "is_cygwin      = " + str(self.is_cygwin)
        return
    
-   def htaccessRaw(self):
+   def htaccess(self, wikipath = 'w'):
        """
        create basic htaccess - TBC
        """
-       print "this is htaccessRaw"
+       self._
        return
 
 # this is the function that will
@@ -319,18 +366,24 @@ class mkwiki:
 
 ## Test code for above classes ##
 
-wi = mkwiki('a.20wiki.net', 'a_20wiki_net') # domain, id
+
+wi = mkwiki('b.20wiki.net', 'b_20wiki_net') # domain, id
    
 wi.prepareInstallCmd()
-wi.printEnv()
-wi.run()
-wi.loadSettings()
-#wi.testDB()
-
-# customSettings code
 
 cs = customSettings(wi)
 cs.load()
+cs.add('#this is a test comment');
+cs.add('');
+cs.add('$wgArticlePath      = "/w/$1";');
+cs.write()
 
+
+print "filedest: " + cs.customsettings
+
+print type(wi)
+
+hta = htaccess(wi)
+print hta.htaccessFile
 
 ## EOF ##
