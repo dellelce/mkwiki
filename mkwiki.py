@@ -21,6 +21,7 @@
 #
 
 import os
+import sys
 import stat as stat
 import re
 import subprocess
@@ -135,7 +136,7 @@ class customSettings:
 # "master" wiki generation class
 
 class mkwiki:
-   'wiki creation class'
+   'wiki creation class - naming convention to be reviewed!!!'
 
    version = '0.0.2'
    adminUser = 'admin'
@@ -144,24 +145,27 @@ class mkwiki:
    _htaccessArray = []
    destDir = None
    dbType = 'sqlite'
+   wikiName = None
+   installCmd = None
+   phpSep = "/"
 
-   def __init__(self, site_domain, site_id, full_url = None):
+   def __init__(self, site_domain, site_id, full_url = None, wiki_name = None):
 
        if self.test_cygwin:
          self.is_cygwin = True
+         self.phpSep = '\\' #this almost incorrect: shoul test if httpd is native or cygwin, we imply we are using my env!
        else:
 	 self.is_cygwin = False
 
        self.id = site_id
        self.domain = site_domain
 
-       #used only internally - full command with arguments
-       self.installCmd=""
-       # admin user
-       if self.adminUser is None:
-         self.adminUser = 'admin'
+       if wiki_name is not None:
+          self.wikiName = wiki_name
+       else:
+          self.wikiName = self.id
 
-       self.adminPass = self.id + "0x"
+       self.setupAuth()
 
        #internal objects - dependant on system configuration/apache install/etc
        self.setupInternals()
@@ -169,14 +173,12 @@ class mkwiki:
        #database initializaton function
        self.setupDB()
 
-       #install.php
-       self.phpFile= self.destDir + "/maintenance/install.php"
        # wikiUrl 
        if full_url is None:
           self.wikiUrl = "http://" + self.domain 
        else:
           self.wikiUrl = full_url
-       #
+
        # scriptpath .. currently empty
        self.scriptpath = ""
 
@@ -185,18 +187,21 @@ class mkwiki:
 
        # configuration files
        self.LocalSettings = self.destDir + "/" + "LocalSettings.php"
-       ####
-       #cygwin variables: phpFile & datPath
-       # these must be changed to a windows format if using cygwin BUT Apache is Windows Native
-       if self.is_cygwin:
-	 self.dataDir = subprocess.check_output(["cygpath", "-w", self.dataDir]);
-	 self.dataDir = self.dataDir.replace('\n','');
-	 self.phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
-	 self.phpFile = self.phpFile.replace('\n','');
+
+# authentication
+
+   def setupAuth(self):
+       '''setup default wiki username and password'''
+       if self.adminUser is None:
+         self.adminUser = 'admin'
+
+       self.adminPass = self.id + "0x"
+
 
 # internal configs - will be stored in a config file - sqlite or xml
 
    def setupInternals(self, _phpDir = None, _rootDir = None):
+       '''setup for platform related variables'''
        #directory where php is installed: a way to dynamically configure this is needed
        if _phpDir is None:
           self.phpDir = "/c/apache/php5"
@@ -211,14 +216,23 @@ class mkwiki:
           self.rootDir = _phpDir
        # where all html will be located
        self.destDir = self.rootDir + "/" + self.id + "/" + "html"
-       # rootDir/id/db/
+       # rootDir/id/db/ - this will be used by native installer
        self.dataDir = self.rootDir + "/" + self.id + "/" + "db"
+
+       #install.php
+       self.phpFile= self.destDir + "/maintenance/install.php"
+
+       ####
+       #cygwin variables: phpFile & datPath
+       # these must be changed to a windows format if using cygwin BUT Apache is Windows Native
+       if self.is_cygwin:
+	 self.dataDir = subprocess.check_output(["cygpath", "-w", self.dataDir]);
+	 self.dataDir = self.dataDir.replace('\n','');
+	 self.phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
+	 self.phpFile = self.phpFile.replace('\n','');
 
        #php executable
        self.phpCmd = self.phpDir + "/" + "php"
-       # dbserver.. not really needed for sqlite
-       #this should be moved to a platform configuration
-       self.dbserver = "localhost"
 
 # "temporary" function which handles all database init
 
@@ -226,10 +240,13 @@ class mkwiki:
        """
        setup DB variables & connection
        """
+       # dbserver.. not really needed for sqlite
+       #this should be moved to a platform configuration
+       self.dbserver = "localhost"
        # dbname (will be filename for sqlite?)
        self.dbname = self.id + "_db"
        # full db pat - this is used internally, so no need to use cygpath if under cygwin
-       self.fulldbpath = self.dataDir + "/" + self.dbname + ".sqlite"
+       self.fulldbpath = self.dataDir + self.phpSep + self.dbname + ".sqlite"
 
    def setupAPI(self):
        # API url
@@ -262,16 +279,16 @@ class mkwiki:
 # prepares strings to be executed
 
    def prepareInstallCmd(self):
-       self.installCmd = (self.phpCmd + ' "' + self.phpFile + '"' +
-			  ' --dbpath="'        + self.dataDir + '" ' +
-			  ' --dbtype="sqlite"' +
-			  ' --wiki="'          + self.id + '" ' +
-			  ' --pass="'          + self.adminPass + '" ' +
-			  ' --server="'        + self.wikiUrl + '" ' +
-			  ' --dbname="'        + self.dbname + '" ' +
-			  ' --scriptpath="'    + self.scriptpath + '" ' +
-			  ' --dbserver="'      + self.dbserver + '" ' +
-			   self.id + ' ' + self.adminUser
+       self.installCmd = (self.phpCmd + ' "'   + self.phpFile    + '"' +
+			  ' --dbpath="'        + self.dataDir    + '"' +
+			  ' --dbtype="'        + self.dbType     + '"' +
+			  ' --wiki="'          + self.id         + '"' +
+			  ' --pass="'          + self.adminPass  + '"' +
+			  ' --server="'        + self.wikiUrl    + '"' +
+			  ' --dbname="'        + self.dbname     + '"' +
+			  ' --scriptpath="'    + self.scriptpath + '"' +
+			  ' --dbserver="'      + self.dbserver   + '"' +
+			  ' ' + self.id + ' ' + self.adminUser
 			)
        return
        
@@ -337,14 +354,15 @@ class mkwiki:
        print "rootDir        = " + self.rootDir
        print "dataDir        = " + self.dataDir
        print "wikiUrl        = " + self.wikiUrl
+       print "wikiName       = " + self.wikiName
        print "phpCmd         = " + self.phpCmd
        print "LocalSettings  = " + self.LocalSettings
        print "fulldbpath     = " + self.fulldbpath
        print "destDir        = " + str(self.destDir)
        print "phpFile        = " + str(self.phpFile)
        print "installCmd     = " + str(self.installCmd)
-       print "admin          = " + str(self.adminUser)
-       print "adminpass      = " + str(self.adminPass)
+       print "adminUser      = " + str(self.adminUser)
+       print "adminPass      = " + str(self.adminPass)
        print "dbserver       = " + str(self.dbserver)
        print "is_cygwin      = " + str(self.is_cygwin)
        return
@@ -353,7 +371,6 @@ class mkwiki:
        """
        create basic htaccess - TBC
        """
-       self._
        return
 
 # this is the function that will
@@ -367,23 +384,58 @@ class mkwiki:
 ## Test code for above classes ##
 
 
-wi = mkwiki('b.20wiki.net', 'b_20wiki_net') # domain, id
+def main(argv=None):
+   if argv is None:
+      argv = sys.argv
+ 
+   if len(argv) == 1:
+      fqdn="b.20wiki.net"
+      id="b_20wiki_net"
+   else:
+      if len(argv) == 2:
+        fqdn = argv[1]
+        id = fqdn.replace('.','_')
+      else:
+        fqdn = argv[1]
+        id = argv[2]
+ 
+   print 'Full Domain: ' + fqdn
+   print 'Wiki ID: ' + id
+   print 
+ 
+   try:
+     wi = mkwiki(fqdn, id, None, 'Test Wiki') # fqdn, wiki id, full url, wiki name
+   except Exception as e:
+     print e
+     return
+ 
+   wi.printEnv()
+   wi.prepareInstallCmd()
+ 
+   try:
+     wi.run()
+   except Exception as e:
+     print e 
+     return
+ 
+   cs = customSettings(wi)
+   cs.load()
+   cs.add('#this is a test comment');
+   cs.add('');
+   cs.add('$wgArticlePath      = "/w/$1";');
+   cs.write()
+  
+   print "filedest: " + cs.customsettings
    
-wi.prepareInstallCmd()
+   print type(wi)
+  
+   hta = htaccess(wi)
+   print hta.htaccessFile
+  
+  
+if __name__ == "__main__":
+   sys.exit(main())
+  
 
-cs = customSettings(wi)
-cs.load()
-cs.add('#this is a test comment');
-cs.add('');
-cs.add('$wgArticlePath      = "/w/$1";');
-cs.write()
-
-
-print "filedest: " + cs.customsettings
-
-print type(wi)
-
-hta = htaccess(wi)
-print hta.htaccessFile
 
 ## EOF ##
