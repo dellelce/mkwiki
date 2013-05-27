@@ -22,11 +22,80 @@
 
 import os
 import sys
-import stat as stat
+import stat
 import re
 import subprocess
 import array
 import sqlite3
+
+#
+# NEW, generic settings class
+#
+
+class settings:
+   '''generic configuration file manager class'''
+
+   fileName = None
+   fileArray = []
+   fileHandle = None
+   fileLength = 0
+   lastException = None
+
+   def __str__(self):
+      return self.fileName
+   
+   def __init__(self,name = None):
+      '''load settings file is name is net'''
+      if name is not None:
+        self.fileName = name
+
+        if os.path.exists(name):
+          self.load(name) 
+
+# 
+   def load(self,name = None):
+      '''load file into array'''
+
+      if name is not None:
+         self.fileName = name
+
+      try:
+         self.fileHandle = open (self.fileName)
+      except Exception as e:
+	 # might be empty or does not exist, directory should exist, this will be tested
+         self.fileLength = 0
+         self.lastException = e
+         return
+
+      for line in self.fileHandle:
+         line = line.strip()
+         self.fileArray.append(line)
+
+# adds a line
+
+   def add(self, line):
+      '''appends ki:Sidebarspecified line to end of file'''
+      self.fileArray.append(line)
+
+# write
+
+   def write(self):
+      '''writes current buffer to file'''
+
+      if self.fileHandle is not None:
+         self.fileHandle.close()
+
+      try:
+         self.lastExcpetion = None
+         self.fileHandle = open(self.fileName, 'w');
+      except Exception as e:
+         self.lastExcpetion = e	
+         return
+
+         for item in self.fileArray:
+            fh.write(item+'\n')
+ 
+         fh.close()
 
 # will handle platform related configuration
 # php, apache and sites home
@@ -45,7 +114,6 @@ class wikiExtension:
       if init_file is None:
          init_fullpath = 'extensions/' + name + '/' + name + '.php' 
 
-#
 #
 class htaccess:
 
@@ -67,82 +135,40 @@ class htaccess:
 # the mkwiki class
 #
 
-class customSettings:
+class customSettings(settings):
      'manage custom settings'
 
-     _customArray = []
-     _arrayLength = 0
+     localsettings = None # LocalSettings.php filename
+     id = None           # wiki id from mkwiki class 
 
-     customsettings = None
-
-     localsettings = None
-     id = None
+     def __str__(self):
+        print self.fileName
 
      def __init__(self, wiki = None):
         if isinstance(wiki, mkwiki):
-           self.localsettings = wiki.LocalSettings
-           self.customsettings = wiki.destDir + "/" + "CustomSettings.php"
+           self.localsettings = wiki.LocalSettings.fileName
+           self.fileName = wiki.destDir + "/" + "CustomSettings.php"
            self.id = wiki.id
 
         if isinstance(wiki, str) and os.path.exists(wiki):
            #workinprogress
            pass
 
-     def add(self, line):
-       'add a line to custom settings file'
-
-       if line is not None:
-	  self._customArray.append(line)
-
-# load settings
-     def load(self):
-       try:
-         fh = open (self.customsettings)
-       except Exception as e:
-	 # might be empty or does not exist, directory should exist, this will be tested
-         _arrayLength = 0
-         return
-
-       for line in fh:
-           line = line.strip()
-	   self._customArray.append(line)
-
-       _arrayLength = len(self._customArray)
-
-
      def show(self):
         '''show contents of customarray'''
 
-        for line in self._customArray:
+        for line in self.fileArray:
            print line
-       
-
-     def write(self):
-        try:
-          fh = open(self.customsettings, 'w');
-        except Exception as e:
-          print 'write: error for file: ' + self.customsettings
-          print type(e)
-          print e.args
-	
-          return
-
-        for item in self._customArray:
-          fh.write(item+'\n')
-
-        fh.close()
-
 
 # "master" wiki generation class
 
 class mkwiki:
    'wiki creation class - naming convention to be reviewed!!!'
 
-   version = '0.0.2'
+   __version__ = '0.0.2'
    adminUser = 'admin'
    LocalSettings = None
    htaccessFile = None
-   _htaccessArray = []
    destDir = None
    dbType = 'sqlite'
    wikiName = None
@@ -186,7 +212,7 @@ class mkwiki:
        self.setupAPI()
 
        # configuration files
-       self.LocalSettings = self.destDir + "/" + "LocalSettings.php"
+       self.LocalSettings = settings(self.destDir + "/" + "LocalSettings.php")
 
 # authentication
 
@@ -196,7 +222,6 @@ class mkwiki:
          self.adminUser = 'admin'
 
        self.adminPass = self.id + "0x"
-
 
 # internal configs - will be stored in a config file - sqlite or xml
 
@@ -222,15 +247,6 @@ class mkwiki:
        #install.php
        self.phpFile= self.destDir + "/maintenance/install.php"
 
-       ####
-       #cygwin variables: phpFile & datPath
-       # these must be changed to a windows format if using cygwin BUT Apache is Windows Native
-       if self.is_cygwin:
-	 self.dataDir = subprocess.check_output(["cygpath", "-w", self.dataDir]);
-	 self.dataDir = self.dataDir.replace('\n','');
-	 self.phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
-	 self.phpFile = self.phpFile.replace('\n','');
-
        #php executable
        self.phpCmd = self.phpDir + "/" + "php"
 
@@ -246,7 +262,7 @@ class mkwiki:
        # dbname (will be filename for sqlite?)
        self.dbname = self.id + "_db"
        # full db pat - this is used internally, so no need to use cygpath if under cygwin
-       self.fulldbpath = self.dataDir + self.phpSep + self.dbname + ".sqlite"
+       self.fulldbpath = self.dataDir + '/' + self.dbname + ".sqlite"
 
    def setupAPI(self):
        # API url
@@ -279,16 +295,27 @@ class mkwiki:
 # prepares strings to be executed
 
    def prepareInstallCmd(self):
-       self.installCmd = (self.phpCmd + ' "'   + self.phpFile    + '"' +
-			  ' --dbpath="'        + self.dataDir    + '"' +
+       ####
+       #cygwin variables: phpFile & datPath
+       # these must be changed to a windows format if using cygwin BUT Apache is Windows Native
+       if self.is_cygwin:
+	 dataDir = subprocess.check_output(["cygpath", "-w", self.dataDir]);
+	 dataDir = dataDir.replace('\n','');
+	 phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
+	 phpFile = phpFile.replace('\n','');
+         print 'original phpFile  is ' + self.phpFile
+         print 'cygwin phpFile  is ' + phpFile
+
+       self.installCmd = (self.phpCmd + ' "'   + phpFile         + '"' +
+			  ' --dbpath="'        + dataDir         + '"' +
 			  ' --dbtype="'        + self.dbType     + '"' +
-			  ' --wiki="'          + self.id         + '"' +
+			  ' --wiki="'          + self.wikiName   + '"' +
 			  ' --pass="'          + self.adminPass  + '"' +
 			  ' --server="'        + self.wikiUrl    + '"' +
 			  ' --dbname="'        + self.dbname     + '"' +
 			  ' --scriptpath="'    + self.scriptpath + '"' +
 			  ' --dbserver="'      + self.dbserver   + '"' +
-			  ' ' + self.id + ' ' + self.adminUser
+			  ' ' + self.id  + ' ' + self.adminUser
 			)
        return
        
@@ -298,27 +325,33 @@ class mkwiki:
        if self.installCmd == "" or self.installCmd is None:
          return
 
-       if os.path.exists(self.LocalSettings):
+       if os.path.exists(self.LocalSettings.fileName):
          print 'already installed: ' + self.domain
          return
 
        print "executing: " + self.installCmd
        subprocess.call(self.installCmd,shell=True);
 
-       #subprocess.call(["chmod", "777", self.fulldbpath]);
-       # sqlite "database" must be writeable by webserver
-       if self.dbType == 'sqlite':
-          os.chmod(self.fulldbpath, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IWOTH | stat.S_IROTH)
+       self.postInstall()
 
        return
 
-# print LocalSettings
+   def  postInstall(self):
+       '''execute any post install step if needed'''
+       # sqlite "database" must be writeable by webserver
+       if self.dbType == 'sqlite':
+          flags = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IWOTH | stat.S_IROTH
+          os.chmod(self.fulldbpath, flags)
+          os.chmod(self.dataDir, flags)
+
+
+# print LocalSettings - to be removed
    def printSettings(self):
-       fh = open (self.LocalSettings)
+       '''print cotents of LocalSettings.php file - might be removed'''
        confArray = []
        filtComments   = re.compile(r'^#')
        filtEmptyLines = re.compile(r'^$')
-       for line in fh:
+       for line in self.LocalSettings.fileArray:
 	   line = line.strip()
 	   if filtComments.match(line) or filtEmptyLines.match(line):
 	     continue
@@ -327,45 +360,29 @@ class mkwiki:
 
        print ''
        print 'Length: ' + str(len(confArray))
-       fh.close
 
-# load settings
-   def loadSettings(self):
-       fh = open (self.LocalSettings)
-
-       _confArray = []
-
-       for line in fh:
-           line = line.strip()
-	   _confArray.append(line)
-
-       confLen = len(_confArray)
-
-       print _confArray[confLen-10:confLen]
-
-       print 'number of lines in conf is: ' + str(len(_confArray))
-  
 # debug/info use only
- 
+
    def printEnv(self):
-       print "id             = " + self.id
-       print "domain         = " + self.domain
-       print "phpDir         = " + self.phpDir
-       print "rootDir        = " + self.rootDir
-       print "dataDir        = " + self.dataDir
-       print "wikiUrl        = " + self.wikiUrl
-       print "wikiName       = " + self.wikiName
-       print "phpCmd         = " + self.phpCmd
-       print "LocalSettings  = " + self.LocalSettings
-       print "fulldbpath     = " + self.fulldbpath
-       print "destDir        = " + str(self.destDir)
-       print "phpFile        = " + str(self.phpFile)
-       print "installCmd     = " + str(self.installCmd)
-       print "adminUser      = " + str(self.adminUser)
-       print "adminPass      = " + str(self.adminPass)
-       print "dbserver       = " + str(self.dbserver)
-       print "is_cygwin      = " + str(self.is_cygwin)
-       return
+      '''print internal variables - debug/test use'''
+      print "id             = " + self.id
+      print "domain         = " + self.domain
+      print "phpDir         = " + self.phpDir
+      print "rootDir        = " + self.rootDir
+      print "dataDir        = " + self.dataDir
+      print "wikiUrl        = " + self.wikiUrl
+      print "wikiName       = " + self.wikiName
+      print "phpCmd         = " + self.phpCmd
+      print "LocalSettings  = " + self.LocalSettings.fileName
+      print "fulldbpath     = " + self.fulldbpath
+      print "destDir        = " + str(self.destDir)
+      print "phpFile        = " + str(self.phpFile)
+      print "installCmd     = " + str(self.installCmd)
+      print "adminUser      = " + str(self.adminUser)
+      print "adminPass      = " + str(self.adminPass)
+      print "dbserver       = " + str(self.dbserver)
+      print "is_cygwin      = " + str(self.is_cygwin)
+      return
    
    def htaccess(self, wikipath = 'w'):
        """
@@ -417,7 +434,8 @@ def main(argv=None):
    except Exception as e:
      print e 
      return
- 
+
+   print 'customSettings here' 
    cs = customSettings(wi)
    cs.load()
    cs.add('#this is a test comment');
@@ -425,10 +443,8 @@ def main(argv=None):
    cs.add('$wgArticlePath      = "/w/$1";');
    cs.write()
   
-   print "filedest: " + cs.customsettings
+   print "filedest: " + cs.fileName
    
-   print type(wi)
-  
    hta = htaccess(wi)
    print hta.htaccessFile
   
@@ -436,6 +452,4 @@ def main(argv=None):
 if __name__ == "__main__":
    sys.exit(main())
   
-
-
 ## EOF ##
