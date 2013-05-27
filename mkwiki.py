@@ -74,7 +74,7 @@ class settings:
 # adds a line
 
    def add(self, line):
-      '''appends ki:Sidebarspecified line to end of file'''
+      '''appends line to end of file'''
       self.fileArray.append(line)
 
 # write
@@ -309,13 +309,13 @@ class mkwiki:
        self.installCmd = (self.phpCmd + ' "'   + phpFile         + '"' +
 			  ' --dbpath="'        + dataDir         + '"' +
 			  ' --dbtype="'        + self.dbType     + '"' +
-			  ' --wiki="'          + self.wikiName   + '"' +
+			  ' --wiki="'          + self.id         + '"' +
 			  ' --pass="'          + self.adminPass  + '"' +
 			  ' --server="'        + self.wikiUrl    + '"' +
 			  ' --dbname="'        + self.dbname     + '"' +
 			  ' --scriptpath="'    + self.scriptpath + '"' +
 			  ' --dbserver="'      + self.dbserver   + '"' +
-			  ' ' + self.id  + ' ' + self.adminUser
+			  ' "' + self.wikiName  + '" ' + self.adminUser
 			)
        return
        
