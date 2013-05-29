@@ -32,20 +32,21 @@ import sqlite3
 # NEW, generic settings class
 #
 
-class settings:
+class settings(object):
    '''generic configuration file manager class'''
-
-   fileName = None
-   fileArray = []
-   fileHandle = None
-   fileLength = 0
-   lastException = None
 
    def __str__(self):
       return self.fileName
    
    def __init__(self,name = None):
       '''load settings file is name is net'''
+
+      self.fileName = None
+      self.fileArray = []
+      self.fileHandle = None
+      self.fileLength = 0
+      self.lastException = None
+
       if name is not None:
         self.fileName = name
 
@@ -86,16 +87,16 @@ class settings:
          self.fileHandle.close()
 
       try:
-         self.lastExcpetion = None
+         self.lastException = None
          self.fileHandle = open(self.fileName, 'w');
       except Exception as e:
          self.lastExcpetion = e	
          return
 
-         for item in self.fileArray:
-            fh.write(item+'\n')
+      for item in self.fileArray:
+         self.fileHandle.write(item+'\n')
  
-         fh.close()
+      self.fileHandle.close()
 
 # will handle platform related configuration
 # php, apache and sites home
@@ -112,18 +113,19 @@ class wikiExtension:
     def __init__(self, name, init_file = None):
 
       if init_file is None:
-         init_fullpath = 'extensions/' + name + '/' + name + '.php' 
+         self.init_fullpath = 'extensions/' + name + '/' + name + '.php' 
 
 #
-class htaccess:
+class htaccess(settings):
+   '''create .htaccess file'''
 
    destDir = None
-   htaccessFile = None
 
    def __init__(self, wiki):
      if isinstance(wiki, mkwiki):
         destDir = wiki.destDir
-        htaccessFile = destDir + '/.htaccess'
+        super(htaccess, self).__init__(destDir + '/.htaccess')
+
 
 #
 # handles custom configuratios
@@ -138,21 +140,17 @@ class htaccess:
 class customSettings(settings):
      'manage custom settings'
 
-     localsettings = None # LocalSettings.php filename
-     id = None           # wiki id from mkwiki class 
 
      def __str__(self):
         print self.fileName
 
      def __init__(self, wiki = None):
+        self.id = None           # wiki id from mkwiki class 
+
         if isinstance(wiki, mkwiki):
            self.localsettings = wiki.LocalSettings.fileName
-           self.fileName = wiki.destDir + "/" + "CustomSettings.php"
            self.id = wiki.id
-
-        if isinstance(wiki, str) and os.path.exists(wiki):
-           #workinprogress
-           pass
+           super(customSettings, self).__init__(wiki.destDir + "/" + "CustomSettings.php")
 
      def show(self):
         '''show contents of customarray'''
@@ -167,15 +165,15 @@ class mkwiki:
 
    __version__ = '0.0.2'
    adminUser = 'admin'
-   LocalSettings = None
-   htaccessFile = None
-   destDir = None
    dbType = 'sqlite'
-   wikiName = None
-   installCmd = None
    phpSep = "/"
 
    def __init__(self, site_domain, site_id, full_url = None, wiki_name = None):
+
+       self.LocalSettings = None
+       self.destDir = None
+       self.wikiName = None
+       self.installCmd = None
 
        if self.test_cygwin:
          self.is_cygwin = True
@@ -435,7 +433,6 @@ def main(argv=None):
      print e 
      return
 
-   print 'customSettings here' 
    cs = customSettings(wi)
    cs.load()
    cs.add('#this is a test comment');
@@ -446,7 +443,13 @@ def main(argv=None):
    print "filedest: " + cs.fileName
    
    hta = htaccess(wi)
-   print hta.htaccessFile
+   print hta.fileName
+   hta.add('RewriteEngine On')
+   hta.add('')
+   hta.add('RewriteCond %{REQUEST_FILENAME} !-f')
+   hta.add('RewriteCond %{REQUEST_FILENAME} !-d')
+   hta.add('RewriteRule ^w/?(.*)$ /index.php?title=$1 [L,QSA]')
+   hta.write()
   
   
 if __name__ == "__main__":
