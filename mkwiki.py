@@ -37,7 +37,21 @@ class settings(object):
 
    def __str__(self):
       return self.fileName
-   
+
+   def __del__(self):
+       if self.fileHandle is not None:
+         self.fileHandle.close()
+         del self.fileHandle
+
+   def __radd__(self,other):
+
+      if self.fileName is None:
+         fnStr = ''
+      else:
+         fnStr = self.fileName
+
+      return str(other) + fnStr
+
    def __init__(self,name = None):
       '''load settings file is name is net'''
 
@@ -433,16 +447,18 @@ def main(argv=None):
      print e 
      return
 
+   # CustomSettings.php
    cs = customSettings(wi)
-   cs.load()
+
+   cs.add('<?php');
    cs.add('#this is a test comment');
    cs.add('');
    cs.add('$wgArticlePath      = "/w/$1";');
    cs.write()
   
-   print "filedest: " + cs.fileName
-   
+   # .htaccess
    hta = htaccess(wi)
+
    print hta.fileName
    hta.add('RewriteEngine On')
    hta.add('')
@@ -450,6 +466,19 @@ def main(argv=None):
    hta.add('RewriteCond %{REQUEST_FILENAME} !-d')
    hta.add('RewriteRule ^w/?(.*)$ /index.php?title=$1 [L,QSA]')
    hta.write()
+
+   # LocalSettings.php
+   ls = wi.LocalSettings
+
+   ls.load() # load created file
+   ls.add('$cs="CustomSettings.php";')
+   ls.add('');
+   ls.add('if (file_exists($cs)) {');
+   ls.add('  include_once($cs);');
+   ls.add('}');
+
+   ls.write()
+
   
   
 if __name__ == "__main__":
