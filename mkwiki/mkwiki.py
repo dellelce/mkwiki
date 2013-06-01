@@ -227,12 +227,19 @@ class mkwiki:
 
 # authentication
 
-   def setupAuth(self):
+   def setupAuth(self, username = None, pw = None):
        '''setup default wiki username and password'''
-       if self.adminUser is None:
-         self.adminUser = 'admin'
 
-       self.adminPass = self.id + "0x"
+       if username is None:
+         if self.adminUser is None:
+           self.adminUser = 'admin'
+       else:
+         self.adminUser = username
+
+       if pw is None:
+         self.adminPass = self.id + "0x"
+       else:
+         self.adminPass = pw
 
 # internal configs - will be stored in a config file - sqlite or xml
 
