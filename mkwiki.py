@@ -36,8 +36,8 @@ def main(argv=None):
       argv = sys.argv
  
    if len(argv) == 1:
-      fqdn="b.20wiki.net"
-      id="b_20wiki_net"
+      fqdn="c.20wiki.net"
+      id="c_20wiki_net"
    else:
       if len(argv) == 2:
         fqdn = argv[1]
@@ -46,6 +46,7 @@ def main(argv=None):
         fqdn = argv[1]
         id = argv[2]
  
+   urlPath = 'w'
    print 'Full Domain: ' + fqdn
    print 'Wiki ID: ' + id
    print 
@@ -71,18 +72,37 @@ def main(argv=None):
    cs.add('<?php');
    cs.add('#this is a test comment');
    cs.add('');
-   cs.add('$wgArticlePath      = "/w/$1";');
+
+   if urlPath is None:
+     cs.add('$wgArticlePath      = "/$1";');
+   else:
+     if len(urlPath) > 0:
+       cs.add('$wgArticlePath      = "/' + urlPath + '/$1";');
+     else:
+       cs.add('$wgArticlePath      = "/$1";');
+
+   # basic wikiExtension test
+   ext = mkwiki.wikiExtension('SyntaxHighlight_GeSHi');
+   ext.write(cs);
+
+   # save customsettings to disk
    cs.write()
   
    # .htaccess
    hta = mkwiki.htaccess(wi)
 
-   print hta.fileName
+
    hta.add('RewriteEngine On')
    hta.add('')
    hta.add('RewriteCond %{REQUEST_FILENAME} !-f')
    hta.add('RewriteCond %{REQUEST_FILENAME} !-d')
-   hta.add('RewriteRule ^w/?(.*)$ /index.php?title=$1 [L,QSA]')
+   if urlPath is None:
+     hta.add('RewriteRule ^/?(.*)$ /index.php?title=$1 [L,QSA]')
+   else:
+     if len(urlPath) > 0:
+       hta.add('RewriteRule ^' + urlPath + '/?(.*)$ /index.php?title=$1 [L,QSA]')
+     else:
+       hta.add('RewriteRule ^/?(.*)$ /index.php?title=$1 [L,QSA]')
    hta.write()
 
    # LocalSettings.php
@@ -97,8 +117,6 @@ def main(argv=None):
 
    ls.write()
 
-  
-  
 if __name__ == "__main__":
    sys.exit(main())
   
