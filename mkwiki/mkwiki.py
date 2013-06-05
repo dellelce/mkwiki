@@ -128,6 +128,18 @@ class wikiExtension:
       if init_file is None:
          self.init_fullpath = 'extensions/' + name + '/' + name + '.php' 
 
+    def write(self, config):
+      '''initial wikiExtension support'''
+
+      if isinstance(config,settings):
+         config.add('$fn = "$IP/' + self.init_fullpath + '";');
+         config.add('');
+         config.add('if (file_exists($fn)) {');
+         config.add('require_once ($fn);');
+         config.add('}');
+      else:
+         raise Exception('invalid object type to write()');
+
 #
 class htaccess(settings):
    '''create .htaccess file'''
@@ -152,7 +164,6 @@ class htaccess(settings):
 
 class customSettings(settings):
      'manage custom settings'
-
 
      def __str__(self):
         print self.fileName
