@@ -81,6 +81,10 @@ def main(argv=None):
      else:
        cs.add('$wgArticlePath      = "/$1";');
 
+   # $wgLogo set incorrectly by 1.21.x installer
+   cs.add('');
+   cs.add('$wgLogo             = "$wgStylePath/common/images/wiki.png";');
+
    # basic wikiExtension test
    ext = mkwiki.wikiExtension('SyntaxHighlight_GeSHi');
    ext.write(cs);
