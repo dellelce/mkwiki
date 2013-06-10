@@ -21,6 +21,7 @@
 #
 # 0.0.3
 #       code made into a module
+#       wikitools is used only accessing api, it should/will be removed in a later stage
 #
 
 import sys
@@ -88,6 +89,11 @@ def main(argv=None):
    # basic wikiExtension test
    ext = mkwiki.wikiExtension('SyntaxHighlight_GeSHi');
    ext.write(cs);
+
+   ext1 = mkwiki.wikiExtension('TestExt');
+   ext1.setParameter('testparam','2');
+   ext1.setParameter('testparam1','2');
+   ext1.write(cs)
 
    # save customsettings to disk
    cs.write()
