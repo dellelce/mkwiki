@@ -125,8 +125,33 @@ class wikiExtension:
 
     def __init__(self, name, init_file = None):
 
+      self.parameters = {}
+
       if init_file is None:
          self.init_fullpath = 'extensions/' + name + '/' + name + '.php' 
+
+    def setParameter(self, name, value = None):
+      '''change a parameter'''
+
+      if value is None:
+         value = ''
+
+      self.parameters[name] = value 
+
+    def writeParameters(self, config):
+      '''write all parameters to specified settings object'''
+     
+      if isinstance(config,settings):
+         for item in self.parameters.keys():
+            if re.search('^\$',item) is None:
+              line = ' $' + item + '="' + self.parameters[item] + '";' 
+            else:
+              line = ' ' + item + '="' + self.parameters[item] + '";' 
+
+            config.add(line);
+      else:
+         raise Exception('invalid object type to writeParameters()');
+
 
     def write(self, config):
       '''initial wikiExtension support'''
@@ -135,8 +160,14 @@ class wikiExtension:
          config.add('$fn = "$IP/' + self.init_fullpath + '";');
          config.add('');
          config.add('if (file_exists($fn)) {');
-         config.add('require_once ($fn);');
+         config.add(' require_once ($fn);');
+
+         if len(self.parameters) > 0:
+            self.writeParameters(config);
+
          config.add('}');
+         config.add('');
+         config.add('## EOF ##');
       else:
          raise Exception('invalid object type to write()');
 
