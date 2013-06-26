@@ -115,6 +115,15 @@ class settings(object):
 # php, apache and sites home
 
 class wikiPlatform:
+  '''handles everything platform specific'''
+
+# initially static (we might handle multiple platforms
+  extension = 'php'   # this might change
+  fileSep = '/'
+  apacheFileSep = '\/' # some platforms (i.e cygwin) have multiple separators (i.e. native & non-native)
+
+  def __init__(self, name = None):
+    '''load specific platform information'''
     pass
 
 # will handle extensions and their configuration
@@ -182,6 +191,9 @@ class htaccess(settings):
         destDir = wiki.destDir
         super(htaccess, self).__init__(destDir + '/.htaccess')
 
+        self.add('RewriteEngine on');
+        self.add('');
+
 
 #
 # handles custom configuratios
@@ -197,7 +209,7 @@ class customSettings(settings):
      'manage custom settings'
 
      def __str__(self):
-        print self.fileName
+        return self.fileName
 
      def __init__(self, wiki = None):
         self.id = None           # wiki id from mkwiki class 
