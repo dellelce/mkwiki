@@ -101,9 +101,6 @@ def main(argv=None):
    # .htaccess
    hta = mkwiki.htaccess(wi)
 
-
-   hta.add('RewriteEngine On')
-   hta.add('')
    hta.add('RewriteCond %{REQUEST_FILENAME} !-f')
    hta.add('RewriteCond %{REQUEST_FILENAME} !-d')
    if urlPath is None:
