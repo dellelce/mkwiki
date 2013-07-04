@@ -26,11 +26,9 @@
 
 import sys
 
-# our new module
 from mkwiki import *
 
-#
-
+## MAIN ##
 
 def main(argv=None):
    if argv is None:

@@ -1,1 +1,1 @@
-__all__=["mkwiki"]
+__all__=["mkwiki","platform"]

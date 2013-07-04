@@ -28,6 +28,10 @@ import subprocess
 import array
 import sqlite3
 
+# local import
+
+import platform
+
 # NEW, generic settings class
 #
 
@@ -111,21 +115,7 @@ class settings(object):
  
       self.fileHandle.close()
 
-# will handle platform related configuration
-# php, apache and sites home
-
-class wikiPlatform:
-  '''handles everything platform specific'''
-
-# initially static (we might handle multiple platforms
-  extension = 'php'   # this might change
-  fileSep = '/'
-  apacheFileSep = '\/' # some platforms (i.e cygwin) have multiple separators (i.e. native & non-native)
-
-  def __init__(self, name = None):
-    '''load specific platform information'''
-    pass
-
+#
 # will handle extensions and their configuration
 #
 
@@ -160,7 +150,6 @@ class wikiExtension:
             config.add(line);
       else:
          raise Exception('invalid object type to writeParameters()');
-
 
     def write(self, config):
       '''initial wikiExtension support'''
@@ -297,30 +286,25 @@ class mkwiki:
 
 # internal configs - will be stored in a config file - sqlite or xml
 
-   def setupInternals(self, _phpDir = None, _rootDir = None):
-       '''setup for platform related variables'''
-       #directory where php is installed: a way to dynamically configure this is needed
-       if _phpDir is None:
-          self.phpDir = "/c/apache/php5"
-       else:
-          self.phpDir = _phpDir
+   def setupInternals(self):
+      '''setup for platform related variables'''
+      #directory where php is installed: a way to dynamically configure this is needed
 
-       # directory where all websites are
+      _platform = platform.wikiPlatform()
+        
+      self.phpDir = _platform.phpDir
+      self.rootDir = _platform.rootDir
 
-       if _rootDir is None:
-          self.rootDir = "/c/apache/sites"
-       else:
-          self.rootDir = _phpDir
-       # where all html will be located
-       self.destDir = self.rootDir + "/" + self.id + "/" + "html"
-       # rootDir/id/db/ - this will be used by native installer
-       self.dataDir = self.rootDir + "/" + self.id + "/" + "db"
+      # where all html will be located
+      self.destDir = self.rootDir + "/" + self.id + "/" + "html"
+      # rootDir/id/db/ - this will be used by native installer
+      self.dataDir = self.rootDir + "/" + self.id + "/" + "db"
 
-       #install.php
-       self.phpFile= self.destDir + "/maintenance/install.php"
+      #install.php
+      self.phpFile= self.destDir + "/maintenance/install.php"
 
-       #php executable
-       self.phpCmd = self.phpDir + "/" + "php"
+      #php executable
+      self.phpCmd = self.phpDir + "/" + "php"
 
 # "temporary" function which handles all database init
 
