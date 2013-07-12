@@ -1,0 +1,7 @@
+{
+  "apacheFileSep": "\\", 
+  "extension": "php", 
+  "fileSetp": "/", 
+  "phpDir": "/c/apache/php5", 
+  "rootDir": "/c/apache/sites"
+}
