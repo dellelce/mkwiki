@@ -6,7 +6,7 @@
 #
 #
 
-class defaults(object):
+class wikiDefaults(object):
   '''all defaults'''
 
   def __init__(self):
