@@ -34,11 +34,11 @@ def main(argv=None):
    if argv is None:
       argv = sys.argv
 
-   defaults = mkwiki.defaults()
+   _defaults = defaults.wikiDefaults()
  
    if len(argv) == 1:
-      fqdn = defaults.fqdn
-      id   = defaults.id
+      fqdn = _defaults.fqdn
+      id   = _defaults.id
    else:
       if len(argv) == 2:
         fqdn = argv[1]
@@ -47,13 +47,13 @@ def main(argv=None):
         fqdn = argv[1]
         id = argv[2]
  
-   urlPath = defaults.urlPath
+   urlPath = _defaults.urlPath
    print 'Full Domain: ' + fqdn
    print 'Wiki ID: ' + id
    print 
  
    try:
-     wi = mkwiki.mkwiki(fqdn, id, None, defaults.title) # fqdn, wiki id, full url, wiki name
+     wi = mkwiki.mkwiki(fqdn, id, None, _defaults.title) # fqdn, wiki id, full url, wiki name
    except Exception as e:
      print e
      return
