@@ -33,10 +33,12 @@ from mkwiki import *
 def main(argv=None):
    if argv is None:
       argv = sys.argv
+
+   defaults = mkwiki.defaults()
  
    if len(argv) == 1:
-      fqdn="c.20wiki.net"
-      id="c_20wiki_net"
+      fqdn = defaults.fqdn
+      id   = defaults.id
    else:
       if len(argv) == 2:
         fqdn = argv[1]
@@ -45,13 +47,13 @@ def main(argv=None):
         fqdn = argv[1]
         id = argv[2]
  
-   urlPath = 'w'
+   urlPath = defaults.urlPath
    print 'Full Domain: ' + fqdn
    print 'Wiki ID: ' + id
    print 
  
    try:
-     wi = mkwiki.mkwiki(fqdn, id, None, 'Test Wiki') # fqdn, wiki id, full url, wiki name
+     wi = mkwiki.mkwiki(fqdn, id, None, defaults.title) # fqdn, wiki id, full url, wiki name
    except Exception as e:
      print e
      return
