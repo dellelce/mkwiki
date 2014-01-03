@@ -11,10 +11,11 @@ class defaults(object):
 
   def __init__(self):
 
-    self.fqdn  = "testwiki.net"
-    self.id    = "testwiki_net"
-    self.title = "Test Wiki"
-    self.logo  = "$wgStylePath/common/images/wiki.png"
+    self.urlPath  = "w"
+    self.fqdn     = "testwiki.net"
+    self.id       = "testwiki_net"
+    self.title    = "Test Wiki"
+    self.logo     = "$wgStylePath/common/images/wiki.png"
 
 
 ## EOF ##
