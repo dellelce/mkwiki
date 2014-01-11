@@ -393,65 +393,64 @@ class mkwiki:
        return
 
    def  postInstall(self):
-       '''execute any post install step if needed'''
-       # sqlite "database" must be writeable by webserver
-       if self.dbType == 'sqlite':
-          flags = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IWOTH | stat.S_IROTH
-          os.chmod(self.fulldbpath, flags)
-          os.chmod(self.dataDir, flags)
-
+     '''execute any post install step if needed'''
+     # sqlite "database" must be writeable by webserver
+     if self.dbType == 'sqlite':
+       flags = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IWOTH | stat.S_IROTH
+       os.chmod(self.fulldbpath, flags)
+       os.chmod(self.dataDir, flags)
 
 # print LocalSettings - to be removed
    def printSettings(self):
-       '''print cotents of LocalSettings.php file - might be removed'''
-       confArray = []
-       filtComments   = re.compile(r'^#')
-       filtEmptyLines = re.compile(r'^$')
-       for line in self.LocalSettings.fileArray:
-	   line = line.strip()
-	   if filtComments.match(line) or filtEmptyLines.match(line):
-	     continue
-	   print(line)
-           confArray.append(line)
+     '''print cotents of LocalSettings.php file - might be removed'''
+     confArray = []
+     filtComments   = re.compile(r'^#')
+     filtEmptyLines = re.compile(r'^$')
+     for line in self.LocalSettings.fileArray:
+       line = line.strip()
+       if filtComments.match(line) or filtEmptyLines.match(line):
+         continue
+       print(line)
+       confArray.append(line)
 
-       print('')
-       print('Length: ' + str(len(confArray)))
+     print('')
+     print('Length: ' + str(len(confArray)))
 
 # debug/info use only
 
    def printEnv(self):
-      '''print internal variables - debug/test use'''
-      print("id             = " + self.id)
-      print("domain         = " + self.domain)
-      print("phpPath        = " + self.phpPath)
-      print("rootDir        = " + self.rootDir)
-      print("dataDir        = " + self.dataDir)
-      print("wikiUrl        = " + self.wikiUrl)
-      print("wikiName       = " + self.wikiName)
-      print("phpCmd         = " + self.phpCmd)
-      print("LocalSettings  = " + self.LocalSettings.fileName)
-      print("fulldbpath     = " + self.fulldbpath)
-      print("destDir        = " + str(self.destDir))
-      print("phpFile        = " + str(self.phpFile))
-      print("installCmd     = " + str(self.installCmd))
-      print("adminUser      = " + str(self.adminUser))
-      print("adminPass      = " + str(self.adminPass))
-      print("dbserver       = " + str(self.dbserver))
-      print("is_cygwin      = " + str(self.is_cygwin))
-      return
-   
+     '''print internal variables - debug/test use'''
+     print("id             = " + self.id)
+     print("domain         = " + self.domain)
+     print("phpPath        = " + self.phpPath)
+     print("rootDir        = " + self.rootDir)
+     print("dataDir        = " + self.dataDir)
+     print("wikiUrl        = " + self.wikiUrl)
+     print("wikiName       = " + self.wikiName)
+     print("phpCmd         = " + self.phpCmd)
+     print("LocalSettings  = " + self.LocalSettings.fileName)
+     print("fulldbpath     = " + self.fulldbpath)
+     print("destDir        = " + str(self.destDir))
+     print("phpFile        = " + str(self.phpFile))
+     print("installCmd     = " + str(self.installCmd))
+     print("adminUser      = " + str(self.adminUser))
+     print("adminPass      = " + str(self.adminPass))
+     print("dbserver       = " + str(self.dbserver))
+     print("is_cygwin      = " + str(self.is_cygwin))
+     return
+  
    def htaccess(self, wikipath = 'w'):
-       """
-       create basic htaccess - TBC
-       """
-       return
+     """
+     create basic htaccess - TBC
+     """
+     return
 
 # this is the function that will
    def readConfig(self, config="mkwiki.config"):
-       dbConn = sqlite3.connect(config) #warning should perform some tests..
-       cur = dbConn.cursor()
-       #cur.execute ("select page_id,page_namespace,page_is_new, page_title from page");
-       cur.execute ("select site_id from sites");
-       return
+     dbConn = sqlite3.connect(config) #warning should perform some tests..
+     cur = dbConn.cursor()
+     #cur.execute ("select page_id,page_namespace,page_is_new, page_title from page");
+     cur.execute ("select site_id from sites");
+     return
 
 ## EOF ##
