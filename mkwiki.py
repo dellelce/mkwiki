@@ -70,10 +70,6 @@ def main(argv=None):
    # CustomSettings.php
    cs = mkwiki.customSettings(wi)
 
-   cs.add('<?php');
-   cs.add('#this is a test comment');
-   cs.add('');
-
    if urlPath is None:
      cs.add('$wgArticlePath      = "/$1";');
    else:
