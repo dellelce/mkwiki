@@ -359,7 +359,7 @@ class mkwiki:
        phpFile = phpFile.replace('\n','');
      else:
        phpFile = self.phpFile
-       dataDir = self.dataFile
+       dataDir = self.dataDir
 
      self.installCmd = (self.phpCmd + ' "'   + phpFile         + '"' +
 		  ' --dbpath="'        + dataDir         + '"' +
