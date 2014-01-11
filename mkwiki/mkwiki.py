@@ -346,7 +346,7 @@ class mkwiki:
      dbConn = sqlite3.connect(self.fulldbpath) #warning should perform some tests..
      cur = dbConn.cursor()
      cur.execute ("select page_id,page_namespace,page_is_new, page_title from page");
-     print(cur.fetchone()))
+     print(cur.fetchone())
 
 # prepares strings to be executed
 
