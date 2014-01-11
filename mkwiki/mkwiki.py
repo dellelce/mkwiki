@@ -226,141 +226,141 @@ class mkwiki:
 
    def __init__(self, site_domain, site_id, full_url = None, wiki_name = None):
 
-       self.LocalSettings = None
-       self.destDir = None
-       self.wikiName = None
-       self.installCmd = None
+     self.LocalSettings = None
+     self.destDir = None
+     self.wikiName = None
+     self.installCmd = None
 
-       if self.test_cygwin:
-         self.is_cygwin = True
-         self.phpSep = '\\' #this almost incorrect: shoul test if httpd is native or cygwin, we imply we are using my env!
-       else:
-	 self.is_cygwin = False
+     if self.test_cygwin:
+       self.is_cygwin = True
+       self.phpSep = '\\' #this almost incorrect: shoul test if httpd is native or cygwin, we imply we are using my env!
+     else:
+       self.is_cygwin = False
 
-       self.id = site_id
-       self.domain = site_domain
+     self.id = site_id
+     self.domain = site_domain
 
-       if wiki_name is not None:
-          self.wikiName = wiki_name
-       else:
-          self.wikiName = self.id
+     if wiki_name is not None:
+       self.wikiName = wiki_name
+     else:
+       self.wikiName = self.id
 
-       self.setupAuth()
+     self.setupAuth()
 
-       #internal objects - dependant on system configuration/apache install/etc
-       self.setupInternals()
+     #internal objects - dependant on system configuration/apache install/etc
+     self.setupInternals()
 
-       #database initializaton function
-       self.setupDB()
+     #database initializaton function
+     self.setupDB()
 
-       # wikiUrl 
-       if full_url is None:
-          self.wikiUrl = "http://" + self.domain 
-       else:
-          self.wikiUrl = full_url
+     # wikiUrl 
+     if full_url is None:
+       self.wikiUrl = "http://" + self.domain 
+     else:
+       self.wikiUrl = full_url
 
-       # scriptpath .. currently empty
-       self.scriptpath = ""
+     # scriptpath .. currently empty
+     self.scriptpath = ""
 
-       # API init
-       self.setupAPI()
+     # API init
+     self.setupAPI()
 
-       # configuration files
-       self.LocalSettings = settings(self.destDir + "/" + "LocalSettings.php")
+     # configuration files
+     self.LocalSettings = settings(self.destDir + "/" + "LocalSettings.php")
 
 # authentication
 
    def setupAuth(self, username = None, pw = None):
-       '''setup default wiki username and password'''
+     '''setup default wiki username and password'''
 
-       if username is None:
-         if self.adminUser is None:
-           self.adminUser = 'admin'
-       else:
-         self.adminUser = username
+     if username is None:
+       if self.adminUser is None:
+         self.adminUser = 'admin'
+     else:
+       self.adminUser = username
 
-       if pw is None:
-         self.adminPass = self.id + "0x"
-       else:
-         self.adminPass = pw
+     if pw is None:
+       self.adminPass = self.id + "0x"
+     else:
+       self.adminPass = pw
 
 # internal configs - will be stored in a config file - sqlite or xml
 
    def setupInternals(self):
-      '''setup for platform related variables'''
-      #directory where php is installed: a way to dynamically configure this is needed
+     '''setup for platform related variables'''
+     #directory where php is installed: a way to dynamically configure this is needed
 
-      _platform = platform.wikiPlatform()
+     _platform = platform.wikiPlatform()
         
-      self.phpPath = _platform.phpPath
-      self.rootDir = _platform.rootDir
+     self.phpPath = _platform.phpPath
+     self.rootDir = _platform.rootDir
 
-      # where all html will be located
-      self.destDir = self.rootDir + "/" + self.id + "/" + "html"
-      # rootDir/id/db/ - this will be used by native installer
-      self.dataDir = self.rootDir + "/" + self.id + "/" + "db"
+     # where all html will be located
+     self.destDir = self.rootDir + "/" + self.id + "/" + "html"
+     # rootDir/id/db/ - this will be used by native installer
+     self.dataDir = self.rootDir + "/" + self.id + "/" + "db"
 
-      #install.php
-      self.phpFile= self.destDir + "/maintenance/install.php"
+     #install.php
+     self.phpFile= self.destDir + "/maintenance/install.php"
 
-      #php executable
-      self.phpCmd = self.phpPath + "/" + "php"
+     #php executable
+     self.phpCmd = self.phpPath + "/" + "php"
 
 # "temporary" function which handles all database init
 
    def setupDB(self):
-       """
-       setup DB variables & connection
-       """
-       # dbserver.. not really needed for sqlite
-       #this should be moved to a platform configuration
-       self.dbserver = "localhost"
-       # dbname (will be filename for sqlite?)
-       self.dbname = self.id + "_db"
-       # full db pat - this is used internally, so no need to use cygpath if under cygwin
-       self.fulldbpath = self.dataDir + '/' + self.dbname + ".sqlite"
+     """
+     setup DB variables & connection
+     """
+     # dbserver.. not really needed for sqlite
+     #this should be moved to a platform configuration
+     self.dbserver = "localhost"
+     # dbname (will be filename for sqlite?)
+     self.dbname = self.id + "_db"
+     # full db pat - this is used internally, so no need to use cygpath if under cygwin
+     self.fulldbpath = self.dataDir + '/' + self.dbname + ".sqlite"
 
    def setupAPI(self):
-       # API url
-       if self.scriptpath is None or self.scriptpath == "":
-          self.apiUrl = self.wikiUrl + '/api.php'
-       else:
-          self.apiUrl = self.wikiUrl + '/' + self.scriptpath + '/api.php'
+     # API url
+     if self.scriptpath is None or self.scriptpath == "":
+        self.apiUrl = self.wikiUrl + '/api.php'
+     else:
+        self.apiUrl = self.wikiUrl + '/' + self.scriptpath + '/api.php'
 
 # slightly different behaviour if we are using cygwin
 # should be replace by using platform class
 
    def test_cygwin():
-       uname = os.uname()[0];
-       matchObj = re.search('cygwin', uname.lower(), flags=0);
-       if matchObj:
-         return True
-       else:
-         return False
+     uname = os.uname()[0];
+     matchObj = re.search('cygwin', uname.lower(), flags=0);
+     if matchObj:
+       return True
+     else:
+       return False
 
 # see content of created database
 #sqlite> select page_id,page_namespace,page_is_new, page_title from page;
 #1|0|1|Main_Page
 
    def testDB(self):
-       dbConn = sqlite3.connect(self.fulldbpath) #warning should perform some tests..
-       cur = dbConn.cursor()
-       cur.execute ("select page_id,page_namespace,page_is_new, page_title from page");
-       print(cur.fetchone()))
+     dbConn = sqlite3.connect(self.fulldbpath) #warning should perform some tests..
+     cur = dbConn.cursor()
+     cur.execute ("select page_id,page_namespace,page_is_new, page_title from page");
+     print(cur.fetchone()))
 
 # prepares strings to be executed
 
    def prepareInstallCmd(self):
-       ####
-       #cygwin variables: phpFile & datPath
-       # these must be changed to a windows format if using cygwin BUT Apache is Windows Native
-       if self.is_cygwin:
-	 dataDir = subprocess.check_output(["cygpath", "-w", self.dataDir]);
-	 dataDir = dataDir.replace('\n','');
-	 phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
-	 phpFile = phpFile.replace('\n','');
-         print('original phpFile  is ' + self.phpFile)
-         print('cygwin phpFile  is ' + phpFile)
+     ####
+     #cygwin variables: phpFile & datPath
+     # these must be changed to a windows format if using cygwin BUT Apache is Windows Native
+     if self.is_cygwin:
+       dataDir = subprocess.check_output(["cygpath", "-w", self.dataDir]);
+       dataDir = dataDir.replace('\n','');
+       phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
+       phpFile = phpFile.replace('\n','');
+       print('original phpFile  is ' + self.phpFile)
+       print('cygwin phpFile  is ' + phpFile)
 
        self.installCmd = (self.phpCmd + ' "'   + phpFile         + '"' +
 			  ' --dbpath="'        + dataDir         + '"' +
