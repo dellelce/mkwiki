@@ -212,7 +212,7 @@ class customSettings(settings):
         '''show contents of customarray'''
 
         for line in self.fileArray:
-           print line
+           print(line)
 
 # "master" wiki generation class
 
@@ -346,7 +346,7 @@ class mkwiki:
        dbConn = sqlite3.connect(self.fulldbpath) #warning should perform some tests..
        cur = dbConn.cursor()
        cur.execute ("select page_id,page_namespace,page_is_new, page_title from page");
-       print cur.fetchone()
+       print(cur.fetchone()))
 
 # prepares strings to be executed
 
@@ -359,8 +359,8 @@ class mkwiki:
 	 dataDir = dataDir.replace('\n','');
 	 phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
 	 phpFile = phpFile.replace('\n','');
-         print 'original phpFile  is ' + self.phpFile
-         print 'cygwin phpFile  is ' + phpFile
+         print('original phpFile  is ' + self.phpFile)
+         print('cygwin phpFile  is ' + phpFile)
 
        self.installCmd = (self.phpCmd + ' "'   + phpFile         + '"' +
 			  ' --dbpath="'        + dataDir         + '"' +
@@ -382,10 +382,10 @@ class mkwiki:
          return
 
        if os.path.exists(self.LocalSettings.fileName):
-         print 'already installed: ' + self.domain
+         print('already installed: ' + self.domain)
          return
 
-       print "executing: " + self.installCmd
+       print("executing: " + self.installCmd)
        subprocess.call(self.installCmd,shell=True);
 
        self.postInstall()
@@ -411,33 +411,33 @@ class mkwiki:
 	   line = line.strip()
 	   if filtComments.match(line) or filtEmptyLines.match(line):
 	     continue
-	   print line
+	   print(line)
            confArray.append(line)
 
-       print ''
-       print 'Length: ' + str(len(confArray))
+       print('')
+       print('Length: ' + str(len(confArray)))
 
 # debug/info use only
 
    def printEnv(self):
       '''print internal variables - debug/test use'''
-      print "id             = " + self.id
-      print "domain         = " + self.domain
-      print "phpPath        = " + self.phpPath
-      print "rootDir        = " + self.rootDir
-      print "dataDir        = " + self.dataDir
-      print "wikiUrl        = " + self.wikiUrl
-      print "wikiName       = " + self.wikiName
-      print "phpCmd         = " + self.phpCmd
-      print "LocalSettings  = " + self.LocalSettings.fileName
-      print "fulldbpath     = " + self.fulldbpath
-      print "destDir        = " + str(self.destDir)
-      print "phpFile        = " + str(self.phpFile)
-      print "installCmd     = " + str(self.installCmd)
-      print "adminUser      = " + str(self.adminUser)
-      print "adminPass      = " + str(self.adminPass)
-      print "dbserver       = " + str(self.dbserver)
-      print "is_cygwin      = " + str(self.is_cygwin)
+      print("id             = " + self.id)
+      print("domain         = " + self.domain)
+      print("phpPath        = " + self.phpPath)
+      print("rootDir        = " + self.rootDir)
+      print("dataDir        = " + self.dataDir)
+      print("wikiUrl        = " + self.wikiUrl)
+      print("wikiName       = " + self.wikiName)
+      print("phpCmd         = " + self.phpCmd)
+      print("LocalSettings  = " + self.LocalSettings.fileName)
+      print("fulldbpath     = " + self.fulldbpath)
+      print("destDir        = " + str(self.destDir))
+      print("phpFile        = " + str(self.phpFile))
+      print("installCmd     = " + str(self.installCmd))
+      print("adminUser      = " + str(self.adminUser))
+      print("adminPass      = " + str(self.adminPass))
+      print("dbserver       = " + str(self.dbserver))
+      print("is_cygwin      = " + str(self.is_cygwin))
       return
    
    def htaccess(self, wikipath = 'w'):

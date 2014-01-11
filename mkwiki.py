@@ -38,7 +38,7 @@ def main(argv=None):
 
    # this would always try to create a site  which is wrong! 
    if len(argv) == 1:
-      print 'mkwiki: missing domain name'
+      print('mkwiki: missing domain name')
       return 1
    else:
       if len(argv) == 2:
@@ -49,14 +49,11 @@ def main(argv=None):
         id = argv[2]
  
    urlPath = _defaults.urlPath
-   print 'Full Domain: ' + fqdn
-   print 'Wiki ID: ' + id
-   print 
  
    try:
      wi = mkwiki.mkwiki(fqdn, id, None, _defaults.title) # fqdn, wiki id, full url, wiki name
    except Exception as e:
-     print e
+     print(e)
      return
  
    wi.printEnv()
@@ -65,7 +62,7 @@ def main(argv=None):
    try:
      wi.run()
    except Exception as e:
-     print e 
+     print(e) 
      return
 
    # CustomSettings.php
