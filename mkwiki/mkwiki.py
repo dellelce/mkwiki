@@ -290,7 +290,7 @@ class mkwiki:
      '''setup for platform related variables'''
      #directory where php is installed: a way to dynamically configure this is needed
 
-     _platform = platform.wikiPlatform()
+     _platform = wikiplatform.wikiPlatform()
         
      self.phpPath = _platform.phpPath
      self.rootDir = _platform.rootDir
