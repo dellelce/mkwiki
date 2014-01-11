@@ -292,7 +292,7 @@ class mkwiki:
 
       _platform = platform.wikiPlatform()
         
-      self.phpDir = _platform.phpDir
+      self.phpPath = _platform.phpPath
       self.rootDir = _platform.rootDir
 
       # where all html will be located
@@ -304,7 +304,7 @@ class mkwiki:
       self.phpFile= self.destDir + "/maintenance/install.php"
 
       #php executable
-      self.phpCmd = self.phpDir + "/" + "php"
+      self.phpCmd = self.phpPath + "/" + "php"
 
 # "temporary" function which handles all database init
 
@@ -423,7 +423,7 @@ class mkwiki:
       '''print internal variables - debug/test use'''
       print "id             = " + self.id
       print "domain         = " + self.domain
-      print "phpDir         = " + self.phpDir
+      print "phpPath        = " + self.phpPath
       print "rootDir        = " + self.rootDir
       print "dataDir        = " + self.dataDir
       print "wikiUrl        = " + self.wikiUrl

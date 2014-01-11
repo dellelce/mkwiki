@@ -20,7 +20,7 @@ class wikiPlatform(object):
   def __init__(self, name = None):
     '''load specific platform information'''
 
-    self.phpDir = "/c/apache/php5"
+    self.phpPath = "/c/apache/php5"
     self.rootDir = "/c/apache/sites"
     #custom site directory below rootDir
     self.siteDir = ""
@@ -31,7 +31,7 @@ class wikiPlatform(object):
   def dump_json(self):
     '''returns current wikiPlatform configuration as a json string'''
  
-    json_layout = { 'phpDir': self.phpDir, 'rootDir': self.rootDir, 'siteDir': self.siteDir, 'extension' : self.extension, 'fileSetp': self.fileSep, 'apacheFileSep': self.apacheFileSep }
+    json_layout = { 'phpPath': self.phpPath, 'rootDir': self.rootDir, 'siteDir': self.siteDir, 'extension' : self.extension, 'fileSetp': self.fileSep, 'apacheFileSep': self.apacheFileSep }
 
     return json.dumps(json_layout, sort_keys=True, indent=2) 
 
