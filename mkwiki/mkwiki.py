@@ -330,7 +330,7 @@ class mkwiki:
 # slightly different behaviour if we are using cygwin
 # should be replace by using platform class
 
-   def test_cygwin():
+   def test_cygwin(self):
      uname = os.uname()[0];
      matchObj = re.search('cygwin', uname.lower(), flags=0);
      if matchObj:
