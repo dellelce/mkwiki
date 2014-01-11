@@ -30,7 +30,7 @@ import sqlite3
 
 # local import
 
-import platform
+import wikiplatform
 
 # NEW, generic settings class
 #
