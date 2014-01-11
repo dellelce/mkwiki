@@ -369,7 +369,7 @@ class mkwiki:
 		  ' --dbserver="'      + self.dbserver   + '"' +
 		  ' "' + self.wikiName  + '" ' + self.adminUser
 		)
-       return
+     return
        
 # load mkwiki configuration
    def run(self):
