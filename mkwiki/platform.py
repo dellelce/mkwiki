@@ -22,6 +22,8 @@ class wikiPlatform(object):
 
     self.phpDir = "/c/apache/php5"
     self.rootDir = "/c/apache/sites"
+    #custom site directory below rootDir
+    self.siteDir = ""
     self.extension = 'php'   # this might change
     self.fileSep = '/'
     self.apacheFileSep = '\\' # some platforms (i.e cygwin) have multiple separators (i.e. native & non-native)
@@ -29,7 +31,7 @@ class wikiPlatform(object):
   def dump_json(self):
     '''returns current wikiPlatform configuration as a json string'''
  
-    json_layout = { 'phpDir': self.phpDir, 'rootDir': self.rootDir, 'extension' : self.extension, 'fileSetp': self.fileSep, 'apacheFileSep': self.apacheFileSep }
+    json_layout = { 'phpDir': self.phpDir, 'rootDir': self.rootDir, 'siteDir': self.siteDir, 'extension' : self.extension, 'fileSetp': self.fileSep, 'apacheFileSep': self.apacheFileSep }
 
     return json.dumps(json_layout, sort_keys=True, indent=2) 
 
