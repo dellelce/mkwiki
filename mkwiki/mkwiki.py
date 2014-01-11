@@ -39,55 +39,54 @@ class settings(object):
    '''generic configuration file manager class'''
 
    def __str__(self):
-      return self.fileName
+     return self.fileName
 
    def __del__(self):
-       if self.fileHandle is not None:
-         self.fileHandle.close()
-         del self.fileHandle
+     if self.fileHandle is not None:
+       self.fileHandle.close()
+       del self.fileHandle
 
    def __radd__(self,other):
+     if self.fileName is None:
+       fnStr = ''
+     else:
+       fnStr = self.fileName
 
-      if self.fileName is None:
-         fnStr = ''
-      else:
-         fnStr = self.fileName
-
-      return str(other) + fnStr
+     return str(other) + fnStr
 
    def __init__(self,name = None):
-      '''load settings file is name is net'''
+     '''load settings file is name is net'''
 
-      self.fileName = None
-      self.fileArray = []
-      self.fileHandle = None
-      self.fileLength = 0
-      self.lastException = None
+     self.fileName = None
+     self.fileArray = []
+     self.fileHandle = None
+     self.fileLength = 0
+     self.lastException = None
 
-      if name is not None:
-        self.fileName = name
+     if name is not None:
+       self.fileName = name
 
-        if os.path.exists(name):
-          self.load(name) 
+       if os.path.exists(name):
+         self.load(name) 
 
 # 
    def load(self,name = None):
-      '''load file into array'''
+     '''load file into array'''
 
-      if name is not None:
-         self.fileName = name
+     if name is not None:
+       self.fileName = name
 
-      try:
-         self.fileHandle = open (self.fileName)
-      except Exception as e:
-	 # might be empty or does not exist, directory should exist, this will be tested
-         self.fileLength = 0
-         self.lastException = e
-         return
+     try:
+       self.fileHandle = open (self.fileName)
+     except Exception as e:
+       # might be empty or does not exist, directory should exist, this will be tested
+       self.fileLength = 0
+       self.lastException = e
+       return
 
-      for line in self.fileHandle:
-         line = line.strip()
-         self.fileArray.append(line)
+     for line in self.fileHandle:
+       line = line.strip()
+       self.fileArray.append(line)
 
 # adds a line
 
@@ -98,76 +97,75 @@ class settings(object):
 # write
 
    def write(self):
-      '''writes current buffer to file'''
+     '''writes current buffer to file'''
 
-      if self.fileHandle is not None:
-         self.fileHandle.close()
+     if self.fileHandle is not None:
+       self.fileHandle.close()
 
-      try:
-         self.lastException = None
-         self.fileHandle = open(self.fileName, 'w');
-      except Exception as e:
-         self.lastExcpetion = e	
-         return
+     try:
+       self.lastException = None
+       self.fileHandle = open(self.fileName, 'w');
+     except Exception as e:
+       self.lastExcpetion = e	
+       return
 
-      for item in self.fileArray:
-         self.fileHandle.write(item+'\n')
+     for item in self.fileArray:
+       self.fileHandle.write(item+'\n')
  
-      self.fileHandle.close()
+     self.fileHandle.close()
 
 #
 # will handle extensions and their configuration
 #
 
 class wikiExtension:
-    'extension management class'
+  'extension management class'
 
-    def __init__(self, name, init_file = None):
+  def __init__(self, name, init_file = None):
+    self.parameters = {}
 
-      self.parameters = {}
+    if init_file is None:
+      self.init_fullpath = 'extensions/' + name + '/' + name + '.php' 
 
-      if init_file is None:
-         self.init_fullpath = 'extensions/' + name + '/' + name + '.php' 
+  def setParameter(self, name, value = None):
+    '''change a parameter'''
 
-    def setParameter(self, name, value = None):
-      '''change a parameter'''
+    if value is None:
+      value = ''
 
-      if value is None:
-         value = ''
+    self.parameters[name] = value 
 
-      self.parameters[name] = value 
-
-    def writeParameters(self, config):
-      '''write all parameters to specified settings object'''
+  def writeParameters(self, config):
+    '''write all parameters to specified settings object'''
      
-      if isinstance(config,settings):
-         for item in self.parameters.keys():
-            if re.search('^\$',item) is None:
-              line = ' $' + item + '="' + self.parameters[item] + '";' 
-            else:
-              line = ' ' + item + '="' + self.parameters[item] + '";' 
+    if isinstance(config,settings):
+      for item in self.parameters.keys():
+        if re.search('^\$',item) is None:
+          line = ' $' + item + '="' + self.parameters[item] + '";' 
+        else:
+          line = ' ' + item + '="' + self.parameters[item] + '";' 
 
-            config.add(line);
-      else:
-         raise Exception('invalid object type to writeParameters()');
+        config.add(line);
+    else:
+      raise Exception('invalid object type to writeParameters()');
 
-    def write(self, config):
-      '''initial wikiExtension support'''
+  def write(self, config):
+    '''initial wikiExtension support'''
 
-      if isinstance(config,settings):
-         config.add('$fn = "$IP/' + self.init_fullpath + '";');
-         config.add('');
-         config.add('if (file_exists($fn)) {');
-         config.add(' require_once ($fn);');
+    if isinstance(config,settings):
+      config.add('$fn = "$IP/' + self.init_fullpath + '";');
+      config.add('');
+      config.add('if (file_exists($fn)) {');
+      config.add(' require_once ($fn);');
 
-         if len(self.parameters) > 0:
-            self.writeParameters(config);
+      if len(self.parameters) > 0:
+        self.writeParameters(config);
 
-         config.add('}');
-         config.add('');
-         config.add('## EOF ##');
-      else:
-         raise Exception('invalid object type to write()');
+      config.add('}');
+      config.add('');
+      config.add('## EOF ##');
+    else:
+      raise Exception('invalid object type to write()');
 
 #
 class htaccess(settings):
