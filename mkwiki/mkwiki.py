@@ -231,7 +231,7 @@ class mkwiki:
      self.wikiName = None
      self.installCmd = None
 
-     if self.test_cygwin:
+     if self.test_cygwin():
        self.is_cygwin = True
        self.phpSep = '\\' #this almost incorrect: shoul test if httpd is native or cygwin, we imply we are using my env!
      else:
