@@ -357,6 +357,9 @@ class mkwiki:
        dataDir = dataDir.replace('\n','');
        phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
        phpFile = phpFile.replace('\n','');
+     else
+       phpFile = self.phpFile
+       dataDir = self.dataFile
 
      self.installCmd = (self.phpCmd + ' "'   + phpFile         + '"' +
 		  ' --dbpath="'        + dataDir         + '"' +
