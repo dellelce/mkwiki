@@ -357,20 +357,18 @@ class mkwiki:
        dataDir = dataDir.replace('\n','');
        phpFile = subprocess.check_output(["cygpath", "-w", self.phpFile]);
        phpFile = phpFile.replace('\n','');
-       print('original phpFile  is ' + self.phpFile)
-       print('cygwin phpFile  is ' + phpFile)
 
-       self.installCmd = (self.phpCmd + ' "'   + phpFile         + '"' +
-			  ' --dbpath="'        + dataDir         + '"' +
-			  ' --dbtype="'        + self.dbType     + '"' +
-			  ' --wiki="'          + self.id         + '"' +
-			  ' --pass="'          + self.adminPass  + '"' +
-			  ' --server="'        + self.wikiUrl    + '"' +
-			  ' --dbname="'        + self.dbname     + '"' +
-			  ' --scriptpath="'    + self.scriptpath + '"' +
-			  ' --dbserver="'      + self.dbserver   + '"' +
-			  ' "' + self.wikiName  + '" ' + self.adminUser
-			)
+     self.installCmd = (self.phpCmd + ' "'   + phpFile         + '"' +
+		  ' --dbpath="'        + dataDir         + '"' +
+		  ' --dbtype="'        + self.dbType     + '"' +
+		  ' --wiki="'          + self.id         + '"' +
+		  ' --pass="'          + self.adminPass  + '"' +
+		  ' --server="'        + self.wikiUrl    + '"' +
+		  ' --dbname="'        + self.dbname     + '"' +
+		  ' --scriptpath="'    + self.scriptpath + '"' +
+		  ' --dbserver="'      + self.dbserver   + '"' +
+		  ' "' + self.wikiName  + '" ' + self.adminUser
+		)
        return
        
 # load mkwiki configuration
