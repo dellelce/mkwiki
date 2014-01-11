@@ -35,10 +35,11 @@ def main(argv=None):
       argv = sys.argv
 
    _defaults = defaults.wikiDefaults()
- 
+
+   # this would always try to create a site  which is wrong! 
    if len(argv) == 1:
-      fqdn = _defaults.fqdn
-      id   = _defaults.id
+      print 'mkwiki: missing domain name'
+      return 1
    else:
       if len(argv) == 2:
         fqdn = argv[1]
@@ -86,10 +87,11 @@ def main(argv=None):
    ext = mkwiki.wikiExtension('SyntaxHighlight_GeSHi');
    ext.write(cs);
 
-   ext1 = mkwiki.wikiExtension('TestExt');
-   ext1.setParameter('testparam','2');
-   ext1.setParameter('testparam1','2');
-   ext1.write(cs)
+#TESTONLY
+#   ext1 = mkwiki.wikiExtension('TestExt');
+#   ext1.setParameter('testparam','2');
+#   ext1.setParameter('testparam1','2');
+#   ext1.write(cs)
 
    # save customsettings to disk
    cs.write()
