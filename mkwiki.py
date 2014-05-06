@@ -68,6 +68,8 @@ def main(argv=None):
    # CustomSettings.php
    cs = mkwiki.customSettings(wi)
 
+   cs.add('<?php');
+
    if urlPath is None:
      cs.add('$wgArticlePath      = "/$1";');
    else:
