@@ -35,11 +35,12 @@ class wikiPlatform(object):
 
     return json.dumps(json_layout, sort_keys=True, indent=2) 
 
-  def read_from_json(self,jsonobj):
+  def read_from_json(self,name):
     '''reads platform configuration from json object'''
     pass
 
   def load_json(self, name):
+    '''load file as json object'''
  
     try:
       self.fh = open(name,'r')
