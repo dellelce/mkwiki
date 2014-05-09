@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 #
-# File:         platform.py
+# File:         wikiplatform.py
 # Created:      0013 050713
-# Description:  description for platform.py
+# Description:  interface to platform
+#               renamed wikiplatform for python3 compatibility
 #
 #
 
@@ -16,9 +17,17 @@ class wikiPlatform(object):
   '''handles everything platform specific'''
 
 # initially static (we might handle multiple platforms
-
   def __init__(self, name = None):
     '''load specific platform information'''
+
+    if name is None:
+      self.defaults()
+    else
+      #read defaults from specified object
+
+# defaults
+  def defaults(self):
+    '''sets platform defaults'''
 
     self.phpPath = "/c/apache/php5"
     self.rootDir = "/c/apache/sites"
@@ -28,6 +37,7 @@ class wikiPlatform(object):
     self.fileSep = '/'
     self.apacheFileSep = '\\' # some platforms (i.e cygwin) have multiple separators (i.e. native & non-native)
 
+  ## dump_json
   def dump_json(self):
     '''returns current wikiPlatform configuration as a json string'''
  
@@ -35,13 +45,16 @@ class wikiPlatform(object):
 
     return json.dumps(json_layout, sort_keys=True, indent=2) 
 
-  def read_from_json(self,name):
+  # read_from_json: it's actually a 'dictionary'
+  # it is not 
+  def read_from_json(self,jsonobj):
     '''reads platform configuration from json object'''
     pass
 
+## load_json
   def load_json(self, name):
-    '''load file as json object'''
- 
+    '''load json variable from file''' 
+
     try:
       self.fh = open(name,'r')
     except Exception as e:
