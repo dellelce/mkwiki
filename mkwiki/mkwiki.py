@@ -1,24 +1,18 @@
 #!/usr/bin/env python
-#
-# mediawiki installation & customization tool
-#
-# reference docs:
-#
-# http://docs.python.org/2/library/array.html
-# http://docs.python.org/2/library/re.html
-# http://docs.python.org/2/library/subprocess.html
-# http://docs.python.org/2/library/sqlite3.html
-#
-# 0.0.1
-#       05:52 ??0313 first real working version!!!!
-#
-# 0.0.2
-#       adding support for creation of CustomSettings.php file
-#       three files will be supported initially:
-#       * LocalSettings.php (add reference to CustomSettings.php)
-#       * CustomSettings.php: actual configuration
-#       * basic (working) .htaccess
-#
+
+'''
+ mediawiki installation & customization tool
+
+ 0.0.1
+       ??0313 first real working version!!!!
+
+ 0.0.2
+       adding support for creation of CustomSettings.php file
+       three files will be supported initially:
+       * LocalSettings.php (add reference to CustomSettings.php)
+       * CustomSettings.php: actual configuration
+       * basic (working) .htaccess
+'''
 
 import os
 import sys
@@ -183,7 +177,7 @@ class htaccess(settings):
 
 
 #
-# handles custom configuratios
+# handles custom configurations
 # LocalSettings.php will be left almost untouched apart from parameters we allow changing
 # customsettings should be saved also in a binary file or in a database so to better
 # handle automatic rebuild.. more details TBD
