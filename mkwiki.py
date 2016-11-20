@@ -1,28 +1,22 @@
 #!/usr/bin/env python
-#
-# mediawiki installation & customization tool
-#
-# reference docs:
-#
-# http://docs.python.org/2/library/array.html
-# http://docs.python.org/2/library/re.html
-# http://docs.python.org/2/library/subprocess.html
-# http://docs.python.org/2/library/sqlite3.html
-#
-# 0.0.1
-#       05:52 ??0313 first real working version!!!!
-#
-# 0.0.2
-#       adding support for creation of CustomSettings.php file
-#       three files will be supported initially:
-#       * LocalSettings.php (add reference to CustomSettings.php)
-#       * CustomSettings.php: actual configuration
-#       * basic (working) .htaccess
-#
-# 0.0.3
-#       code made into a module
-#       wikitools is used only accessing api, it should/will be removed in a later stage
-#
+
+'''
+ mediawiki installation & customization tool
+
+ 0.0.1
+       05:52 ??0313 first real working version!!!!
+
+ 0.0.2
+       adding support for creation of CustomSettings.php file
+       three files will be supported initially:
+       * LocalSettings.php (add reference to CustomSettings.php)
+       * CustomSettings.php: actual configuration
+       * basic (working) .htaccess
+
+ 0.0.3
+       code made into a module
+       wikitools is used only accessing api, it should/will be removed in a later stage
+'''
 
 import sys
 
