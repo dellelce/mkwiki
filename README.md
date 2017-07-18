@@ -2,19 +2,19 @@
 mkwiki.py
 =========
 
+## Purpose ##
 
-Purpose:
 Automate mediawiki install and customization
 
-Initial:
+## Initial ##
 
 Installs mediawiki (files must be in place) with SQLite database
 
-TODO FIXES:
+## TODO FIXES ##
 
-* Database directory for SQLite must be writable by Webserver: test to be added
+Database directory for SQLite must be writable by Webserver: test to be added
 
-TODO FEATURES:
+## TODO FEATURES ##
 
 * Platform configuration will be stored externally
 * all Custom Settings will be moved out to a file called CustomSettings.php
@@ -23,5 +23,3 @@ TODO FEATURES:
 * Install custom skin
 * Load XML dumps
 * Basic command line interface
-
-=== EOF ===
